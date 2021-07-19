@@ -155,7 +155,7 @@ def rdd(df, year, var, category='업체', log=False, bandwidth=0, order=1):
 # %%
 os.chdir("E:\Data\greenhouse_gas_emissions")
 # print("Current Working Directory" , os.getcwd())
-data = pd.read_excel("ghg_emissions_v4.xlsx")
+data = pd.read_excel("ghg_emissions_v6.xlsx")
 
 # rdd(data, year='all', var='LC', log=False,order=1)
 
@@ -168,12 +168,13 @@ list_var = ['employees','revenue','LC','OP']
 list_order = [1,2,3]
 
 
+
 for o in list_order:
     for b in list_bandwidth:
         for v in list_var:
             try:
                 data = pd.read_excel("ghg_emissions_v4.xlsx")
-                rdd(data, 'all', v, bandwidth=b, order=o)
+                rdd(data, 2020, v, bandwidth=b, order=o)
             except:
                 print('\n\n\n\n\n', o, '차항,', 'bandwidth :', b, ',', v,"에서 에러남.",'\n\n\n\n\n')
 print('끝.')
@@ -182,7 +183,7 @@ print('끝.')
 '''
     1. company (A) : 회사명
     
-    2. category (B) : 지정구분
+    2. category (B) : 지정구분  
 
     3. address_main (C) : 사업장 주소 시도 분류
 

@@ -68,7 +68,10 @@ data2018 = ext_tCO2(data2018, company='관리업체', category='지정구분',tC
 data2019 = pd.read_excel("2019년 업체별 명세서 주요정보.xls",header = 1)
 data2019 = ext_tCO2(data2019, company='관리업체', category='지정구분',tCO2='온실가스 배출량(tCO2)', year=2019)
 
-list_tmp = [data2011,data2012,data2013,data2014,data2015,data2016,data2017,data2018,data2019]
+data2020 = pd.read_excel("2020년 업체별 명세서 주요정보.xlsx",header = 1)
+data2020 = ext_tCO2(data2020, company='관리업체', category='지정구분',tCO2='온실가스 배출량(tCO2)', year=2020)
+
+list_tmp = [data2011,data2012,data2013,data2014,data2015,data2016,data2017,data2018,data2019,data2020]
 data_company = reduce(lambda left, right: pd.merge(left, right, how='outer', on=['company',
             'category']),list_tmp)
 
@@ -95,8 +98,13 @@ def ext_address(data, company, category, address):
 os.chdir('E:\\Data\\greenhouse_gas_emissions\\업체별 주소')
 print('Current Working Directory ', os.getcwd())
 
-address1 = pd.read_excel("목표관리대상업체.xls")
-address1 = ext_address(data=address1, company='관리업체명', category='지정구분', address='주소')
+address1_1 = pd.read_excel("목표관리대상업체.xls")
+address1_1 = ext_address(data=address1_1, company='관리업체명', category='지정구분', address='주소')
+
+address1_2 = pd.read_excel("목표관리대상업체2020.xls")
+address1_2 = ext_address(data=address1_2, company='관리업체명', category='지정구분', address='주소')
+
+address1 = pd.concat([address1_1, address1_2], axis=0)
 
 address2 = pd.read_excel("할당대상업체_1차.xls")
 address2 = ext_address(data=address2, company='업체명', category='적용기준', address='소재지')
@@ -108,7 +116,7 @@ address4 = pd.read_excel("할당대상업체_3차.xls")
 address4 = ext_address(data=address4, company='업체명', category='적용기준', address='소재지')
 
 address = pd.concat([address2, address3, address4, address1], axis=0)
-
+#%%
 address.loc[address['address_main'] == '수원시','address_main'] = '경기도' 
 address.loc[address['address_main'] == '대전관역시','address_main'] = '대전광역시'
 address.loc[address['address_main'] == '서을특별시','address_main'] = '서울특별시'
@@ -151,7 +159,7 @@ for i in a:
     if data_tmp1.loc[data_tmp1['company']==i,].shape[0]>=3: list_tmp.append(i)
 print(list_tmp)
 '''
-
+#%%
 address2 = data_tmp1
 address2 = address2.drop(data_tmp1.loc[data_tmp1['company']=='코오롱글로텍구미공장',].index)
 address2 = address2.drop(data_tmp1.loc[data_tmp1['company']=='코카콜라음료여주공장',].index)
@@ -438,19 +446,19 @@ def extract_merge(data,tco2,company='company'):
 # %%
 list_tmp = [address1,extract_merge(data2011,tco2='tCO2_2011'),extract_merge(data2012,tco2='tCO2_2012'),extract_merge(data2013,tco2='tCO2_2013'),extract_merge(data2014,tco2='tCO2_2014'),
         extract_merge(data2015,tco2='tCO2_2015'),extract_merge(data2016,tco2='tCO2_2016'),extract_merge(data2017,tco2='tCO2_2017'),extract_merge(data2018,tco2='tCO2_2018'),
-        extract_merge(data2019,tco2='tCO2_2019')]
+        extract_merge(data2019,tco2='tCO2_2019'),extract_merge(data2020,tco2='tCO2_2020')]
 
 data_company1 = reduce(lambda left, right: pd.merge(left,right,how='left',on=['company']),list_tmp)
 
-list_tmp = [address2, data2011,data2012,data2013,data2014,data2015,data2016,data2017,data2018,data2019]
+list_tmp = [address2, data2011,data2012,data2013,data2014,data2015,data2016,data2017,data2018,data2019,data2020]
 
 data_company2 = reduce(lambda left, right: pd.merge(left, right, how='left',on=['company','category']),list_tmp)
 
 data_company = pd.concat([data_company1,data_company2],axis=0)
 
-data_company = data_company.dropna(how='all', subset=['tCO2_2011', 'tCO2_2012', 'tCO2_2013', 'tCO2_2014', 'tCO2_2015', 'tCO2_2016', 'tCO2_2017', 'tCO2_2018', 'tCO2_2019'])
+data_company = data_company.dropna(how='all', subset=['tCO2_2011', 'tCO2_2012', 'tCO2_2013', 'tCO2_2014', 'tCO2_2015', 'tCO2_2016', 'tCO2_2017', 'tCO2_2018', 'tCO2_2019', 'tCO2_2020'])
 
-data_company = data_company.drop_duplicates(['company','tCO2_2011','tCO2_2012','tCO2_2013','tCO2_2014','tCO2_2015','tCO2_2016','tCO2_2017','tCO2_2018','tCO2_2019'], keep=False)
+data_company = data_company.drop_duplicates(['company','tCO2_2011','tCO2_2012','tCO2_2013','tCO2_2014','tCO2_2015','tCO2_2016','tCO2_2017','tCO2_2018','tCO2_2019','tCO2_2020'], keep=False)
 
 
 # %% EXPORT
@@ -459,7 +467,7 @@ data_final = pd.merge(data_company, data_region, how="inner", on=['address_main'
 
 os.chdir("E:\Data\greenhouse_gas_emissions")
 print("Current Working Directory ", os.getcwd())
-data_final.to_excel("ghg_emissions_v3.xlsx", index=False)
+data_final.to_excel("ghg_emissions_v5.xlsx", index=False)
 
 
 # %% Kis VALUE
@@ -482,7 +490,7 @@ kis_tmp = kis.drop_duplicates(['company'], keep=False)
 # %% Kis MERGE
 os.chdir("E:\Data\greenhouse_gas_emissions")
 print("Current Working Directory", os.getcwd())
-ghg_emissions = pd.read_excel("ghg_emissions.xlsx")
+ghg_emissions = pd.read_excel("ghg_emissions_v5.xlsx")
 
 temp = pd.merge(ghg_emissions, kis_tmp, how='left', on='company')
 
@@ -490,6 +498,6 @@ temp = pd.merge(ghg_emissions, kis_tmp, how='left', on='company')
 #%% EXPORT
 os.chdir("E:\Data\greenhouse_gas_emissions")
 print("Current Working Directory ", os.getcwd())
-temp.to_excel("ghg_emissions_v4.xlsx", index=False)
+temp.to_excel("ghg_emissions_v6.xlsx", index=False)
 
 # %%
