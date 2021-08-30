@@ -1,4 +1,5 @@
 #%% MODULE IMPORT
+from numpy import testing
 import pandas as pd
 import numpy as np
 import seaborn as sns
@@ -137,21 +138,28 @@ def rdd(df, year, var, category='업체', log=False, bandwidth=0, order=1):
     under_y = rdd.fittedvalues[under_idx]
     over_y = rdd.fittedvalues[over_idx]
 
-    plt.plot(X['tCO2_mean^1'].loc[under_idx], under_y,'m-')
-    plt.plot(X['tCO2_mean^1'].loc[over_idx], over_y, 'y-')
-    plt.scatter(df['tCO2_mean^1'],df[rdd_y])
-    plt.vlines(threshold,ymin=df[rdd_y].min(),ymax=df[rdd_y].max(), colors = 'black', linestyles = ':')
+    # plt.plot(X['tCO2_mean^1'].loc[under_idx], under_y,'m-')
+    # plt.plot(X['tCO2_mean^1'].loc[over_idx], over_y, 'y-')
+    # plt.scatter(df['tCO2_mean^1'],df[rdd_y])
+    # plt.vlines(threshold,ymin=df[rdd_y].min(),ymax=df[rdd_y].max(), colors = 'black', linestyles = ':')
 
-    plt.xlabel('log_'*log+'avg_tCO2')
-    plt.ylabel('log_'*log+rdd_y)
-    plt.title('Regression Discontinuity')
+    # plt.xlabel('log_'*log+'avg_tCO2')
+    # plt.ylabel('log_'*log+rdd_y)
+    # plt.title('Regression Discontinuity')
 
-    plt.show()
+    # plt.show()
 
-    print('\n================================= bandwidth :',bandwidth,'==================================\n')
+    # print('\n================================= bandwidth :',bandwidth,'==================================\n')
 
-    print(rdd.summary().tables[0])
-    print(rdd.summary().tables[1])
+    # print(rdd.summary().tables[0])
+    # print(rdd.summary().tables[1])
+    filename = var + '_' + str(bandwidth) + '_' + str(year) + '_' + str(order) + '.csv'
+    with open(filename, 'w') as f:
+        f.write('Bandwidth : ')
+        f.write(str(bandwidth))
+        f.write('\n')
+        f.write(rdd.summary().as_csv())
+        
 # %%
 os.chdir("E:\Data\greenhouse_gas_emissions")
 # print("Current Working Directory" , os.getcwd())
@@ -160,24 +168,52 @@ data = pd.read_excel("ghg_emissions_v6.xlsx")
 # rdd(data, year='all', var='LC', log=False,order=1)
 
 #%%
-list_bandwidth = []
-for i in range(13):
-    list_bandwidth.append(10000 * i)
-list_var = ['employees','revenue','LC','OP']
-# list_year = [2015,2016,2017,2018,2019,2020]
-list_order = [1,2,3]
-
-
-
-for o in list_order:
-    for b in list_bandwidth:
-        for v in list_var:
-            try:
-                data = pd.read_excel("ghg_emissions_v4.xlsx")
-                rdd(data, 2020, v, bandwidth=b, order=o)
-            except:
-                print('\n\n\n\n\n', o, '차항,', 'bandwidth :', b, ',', v,"에서 에러남.",'\n\n\n\n\n')
-print('끝.')
+# list_bandwidth = []
+# for i in range(13):
+#     list_bandwidth.append(10000 * i)
+# list_var = ['employees','revenue','LC','OP']
+# # list_year = [2015,2016,2017,2018,2019,2020]
+# list_order = [1,2,3]
+os.chdir("E:\Data\greenhouse_gas_emissions\\rdd\csv")
+res_list = [['all', 'employees',0,1],
+            ['all', 'revenue',0,1],
+            ['all', 'OP',0,1],
+            ['all', 'employees',6000,1],
+            ['all', 'OP',9000,1],
+            ['all', 'OP',10000,1],
+            ['all', 'OP',11000,1],
+            ['all', 'employees',0,2],
+            ['all', 'LC',0,2],
+            ['all', 'employees',5000,2],
+            ['all', 'employees',5000,3],
+            [2020, 'OP',120000,1],
+            [2020, 'OP',110000,1],
+            [2018, 'OP',110000,1],
+            [2020, 'OP',100000,1],
+            [2016, 'LC',60000,1],
+            [2018, 'OP',40000,1],
+            [2017, 'revenue',30000,1],
+            [2019, 'revenue',0,1],
+            [2020, 'revenue',0,1],
+            [2018, 'OP',0,1],
+            [2016, 'OP',0,2],
+            [2016, 'LC',0,2],
+            [2016,'employees',0,2]]
+for i in res_list:
+    y = i[0]
+    v = i[1]
+    b = i[2]
+    o = i[3]
+    rdd(data, year=y, var=v,bandwidth=b, order=o)
+# for order in list_order:
+#     for bandwidth in list_bandwidth:
+#         for v in list_var:
+#             try:
+#                 data = pd.read_excel("ghg_emissions_v4.xlsx")
+#                 rdd(data, 2020, v, bandwidth=b, order=o)
+#             except:
+#                 print('\n\n\n\n\n', o, '차항,', 'bandwidth :', b, ',', v,"에서 에러남.",'\n\n\n\n\n')
+# print('끝.')
 
 #%%
 '''
